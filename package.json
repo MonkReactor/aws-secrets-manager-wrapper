@@ -1,0 +1,41 @@
+{
+  "name": "aws-secrets-manager-wrapper",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx ts-node src/index.ts",
+    "build": "webpack --config webpack.config.ts"
+  },
+  "keywords": [
+    "aws",
+    "secrets-manager",
+    "typescript",
+    "wrapper",
+    "security",
+    "aws-sdk",
+    "secret-management",
+    "cloud",
+    "infrastructure"
+  ],
+  "author": "RakulAgn",
+  "license": "MIT",
+  "description": "A TypeScript wrapper for AWS Secrets Manager that simplifies common operations and provides a more user-friendly interface.",
+  "devDependencies": {
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.670.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RakulAgn/aws-secrets-manager-wrapper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RakulAgn/aws-secrets-manager-wrapper/issues"
+  },
+  "homepage": "https://github.com/RakulAgn/aws-secrets-manager-wrapper#readme"
+}

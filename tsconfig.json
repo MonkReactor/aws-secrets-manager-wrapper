@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "ES2017",
+        "module": "commonjs",
+        "strict": true,
+        "esModuleInterop": true, // Enable this flag
+        "outDir": "./dist"
+    },
+    "include": [
+        "src/**/*.ts"
+    ]
+}
