@@ -16,7 +16,7 @@ export default {
     extensions: [".ts", ".js"],
   },
   output: {
-    filename: "bundle.js",
+    filename: "index.js", // Changed from bundle.js to index.js
     path: path.resolve(__dirname, "dist"),
     libraryTarget: "commonjs2",
   },
