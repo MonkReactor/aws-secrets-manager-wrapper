@@ -18,6 +18,24 @@ export interface GetSecretOptions {
   version?: string;
 }
 
+export interface BatchGetSecretOptions {
+  secretIds: string[];
+  filters?: { Key: string; Values: string[] }[];
+  maxResults?: number;
+  nextToken?: string;
+  parse?: boolean;
+}
+
+export interface BatchGetSecretResult {
+  secrets: Record<string, any>;
+  errors: {
+    secretId?: string;
+    errorCode?: string;
+    errorMessage?: string;
+  }[];
+  nextToken?: string;
+}
+
 export interface DeleteSecretOptions {
   forceDelete?: boolean;
   recoveryDays?: number;

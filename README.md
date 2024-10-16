@@ -39,6 +39,15 @@ const secret = await secretsManager.getSecret(secretName);
 console.log(secret);
 ```
 
+### Batch Get Secrets
+
+```typescript
+const secretNames = ["secret1", "secret2", "secret3"];
+const result = await secretsManager.batchGetSecrets({ secretIds: secretNames });
+console.log(result.secrets);
+console.log(result.errors);
+```
+
 ### Create a Secret
 
 ```typescript
@@ -84,6 +93,7 @@ constructor(config: AWSSecretsManagerConfig = {})
 #### Methods
 
 - `getSecret<T = any>(secretName: string, options?: GetSecretOptions): Promise<T>`
+- `batchGetSecrets(options: BatchGetSecretOptions): Promise<BatchGetSecretResult>`
 - `createSecret<T = any>(secretName: string, secretValue: T, options?: SecretOptions): Promise<string>`
 - `updateSecret<T = any>(secretName: string, secretValue: T, options?: SecretOptions): Promise<string>`
 - `deleteSecret(secretName: string, options?: DeleteSecretOptions): Promise<void>`

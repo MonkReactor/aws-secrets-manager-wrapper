@@ -5,6 +5,8 @@ import {
   UpdateSecretCommand,
   DeleteSecretCommand,
   SecretsManagerClientConfig,
+  BatchGetSecretValueCommand,
+  FilterNameStringType,
 } from "@aws-sdk/client-secrets-manager";
 
 import {
@@ -12,8 +14,11 @@ import {
   SecretOptions,
   GetSecretOptions,
   DeleteSecretOptions,
+  BatchGetSecretOptions,
+  BatchGetSecretResult,
 } from "./types";
 import { SecretsManagerError } from "./error";
+import { convertFilters, parseSecretValue } from "./utils";
 
 export class AWSSecretsManager {
   private client: SecretsManagerClient;
@@ -96,6 +101,76 @@ export class AWSSecretsManager {
     }
   }
 
+  async batchGetSecrets(
+    options: BatchGetSecretOptions
+  ): Promise<BatchGetSecretResult> {
+    const result: BatchGetSecretResult = {
+      secrets: {},
+      errors: [],
+    };
+
+    try {
+      const command = new BatchGetSecretValueCommand({
+        SecretIdList: options.secretIds,
+        Filters: convertFilters(options.filters),
+        MaxResults: options.maxResults,
+        NextToken: options.nextToken,
+      });
+
+      const response = await this.client.send(command);
+
+      if (response.SecretValues) {
+        for (const secretValue of response.SecretValues) {
+          if (secretValue.Name) {
+            if (secretValue.SecretString) {
+              result.secrets[secretValue.Name] = options.parse
+                ? parseSecretValue(secretValue.SecretString)
+                : secretValue.SecretString;
+            } else if (secretValue.SecretBinary) {
+              throw new SecretsManagerError("Binary secrets are not supported");
+            }
+          }
+        }
+      }
+
+      if (response.Errors) {
+        result.errors = response.Errors.map((error) => ({
+          secretId: error.SecretId,
+          errorCode: error.ErrorCode,
+          errorMessage: error.Message,
+        }));
+      }
+
+      if (response.NextToken) {
+        result.nextToken = response.NextToken;
+      }
+
+      return result;
+    } catch (error) {
+      if (error instanceof SecretsManagerError) {
+        throw error;
+      }
+      if (error instanceof Error) {
+        if (error.name === "ResourceNotFoundException") {
+          throw new SecretsManagerError("One or more secrets not found", error);
+        }
+        if (error.name === "AccessDeniedException") {
+          throw new SecretsManagerError(
+            "Access denied to one or more secrets",
+            error
+          );
+        }
+        if (error.name === "ThrottlingException") {
+          throw new SecretsManagerError(
+            "Request throttled. Try again later.",
+            error
+          );
+        }
+      }
+      throw this.formatError("Failed to retrieve secrets", error as Error);
+    }
+  }
+
   async createSecret<T = any>(
     secretName: string,
     secretValue: T,
@@ -167,3 +242,5 @@ export class AWSSecretsManager {
     return new SecretsManagerError(message);
   }
 }
+
+export { FilterNameStringType };
