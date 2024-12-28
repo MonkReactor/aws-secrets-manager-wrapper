@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "start": "npx ts-node src/index.ts",
+    "test-start": "npx ts-node src/localcheck.ts",
     "build": "rm -rf dist && webpack --config webpack.config.ts",
     "test": "jest"
   },
