@@ -6,6 +6,10 @@ A TypeScript wrapper for AWS Secrets Manager that simplifies common operations a
 
 - Easy-to-use methods for common Secrets Manager operations
 - Automatic parsing of JSON secrets
+- Secret existence checking and metadata retrieval
+- Tag management capabilities
+- Version history tracking
+- Secret listing with filtering
 - Customizable AWS configuration
 - Proper error handling and custom error types
 - TypeScript support for better type safety
@@ -21,10 +25,9 @@ npm install aws-secrets-manager-wrapper
 ### Initialization
 
 ```typescript
-import { AWSSecretsManager } from "aws-secrets-manager-wrapper";
-
+import { AWSSecretsManager } from 'aws-secrets-manager-wrapper';
 const secretsManager = new AWSSecretsManager({
-  region: "us-east-1",
+  region: 'us-east-1',
   // Optional: Provide credentials if not using environment variables or IAM roles
   // accessKeyId: 'YOUR_ACCESS_KEY_ID',
   // secretAccessKey: 'YOUR_SECRET_ACCESS_KEY',
@@ -34,7 +37,7 @@ const secretsManager = new AWSSecretsManager({
 ### Get a Secret
 
 ```typescript
-const secretName = "my-secret";
+const secretName = 'my-secret';
 const secret = await secretsManager.getSecret(secretName);
 console.log(secret);
 ```
@@ -42,7 +45,7 @@ console.log(secret);
 ### Batch Get Secrets
 
 ```typescript
-const secretNames = ["secret1", "secret2", "secret3"];
+const secretNames = ['secret1', 'secret2', 'secret3'];
 const result = await secretsManager.batchGetSecrets({ secretIds: secretNames });
 console.log(result.secrets);
 console.log(result.errors);
@@ -51,8 +54,8 @@ console.log(result.errors);
 ### Create a Secret
 
 ```typescript
-const secretName = "new-secret";
-const secretValue = { key: "value" };
+const secretName = 'new-secret';
+const secretValue = { key: 'value' };
 const arn = await secretsManager.createSecret(secretName, secretValue);
 console.log(`Secret created with ARN: ${arn}`);
 ```
@@ -60,16 +63,56 @@ console.log(`Secret created with ARN: ${arn}`);
 ### Update a Secret
 
 ```typescript
-const secretName = "existing-secret";
-const newSecretValue = { updatedKey: "updatedValue" };
+const secretName = 'existing-secret';
+const newSecretValue = { updatedKey: 'updatedValue' };
 const arn = await secretsManager.updateSecret(secretName, newSecretValue);
 console.log(`Secret updated with ARN: ${arn}`);
+```
+
+### Check Secret Existence
+
+```typescript
+const exists = await secretsManager.secretExists('my-secret');
+console.log(`Secret exists: ${exists}`);
+```
+
+### List All Secrets
+
+```typescript
+const { secretNames, nextToken } = await secretsManager.listSecrets({
+  maxResults: 100,
+  filters: [{ Key: 'tag-key', Values: ['environment'] }],
+});
+console.log(secretNames);
+```
+
+### Manage Tags
+
+```typescript
+// Add tags
+const tagResult = await secretsManager.tagSecret('my-secret', {
+  environment: 'production',
+  team: 'backend',
+});
+console.log(tagResult.message);
+
+// Get tags
+const tags = await secretsManager.getTags('my-secret');
+console.log(tags); // { environment: 'production', team: 'backend' }
+```
+
+### Get Secret Versions
+
+```typescript
+const versions = await secretsManager.getSecretVersions('my-secret');
+console.log(versions);
+// [{ versionId: 'v1', createdDate: Date, isLatest: true }, ...]
 ```
 
 ### Delete a Secret
 
 ```typescript
-const secretName = "secret-to-delete";
+const secretName = 'secret-to-delete';
 await secretsManager.deleteSecret(secretName);
 console.log(`Secret "${secretName}" deleted`);
 ```
@@ -97,6 +140,11 @@ constructor(config: AWSSecretsManagerConfig = {})
 - `createSecret<T = any>(secretName: string, secretValue: T, options?: SecretOptions): Promise<string>`
 - `updateSecret<T = any>(secretName: string, secretValue: T, options?: SecretOptions): Promise<string>`
 - `deleteSecret(secretName: string, options?: DeleteSecretOptions): Promise<void>`
+- `secretExists(secretName: string): Promise<boolean>`
+- `listSecrets(options?: ListAllSecretOptions): Promise<{ secretNames: string[]; nextToken?: string }>`
+- `tagSecret(secretName: string, tags: Record<string, string>): Promise<{ success: true; message: string }>`
+- `getTags(secretName: string): Promise<Record<string, string>>`
+- `getSecretVersions(secretName: string): Promise<Array<{ versionId: string; createdDate?: Date; isLatest: boolean }>>`
 
 ## Error Handling
 

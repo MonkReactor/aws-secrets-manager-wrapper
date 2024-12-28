@@ -40,3 +40,12 @@ export interface DeleteSecretOptions {
   forceDelete?: boolean;
   recoveryDays?: number;
 }
+
+export interface ListAllSecretOptions {
+  maxResults?: number;
+  nextToken?: string;
+  filters?: Array<{
+    Key: 'name' | 'description' | 'tag-key' | 'tag-value';
+    Values: string[];
+  }>;
+}
